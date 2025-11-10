@@ -1,16 +1,13 @@
 import httpx
 import sys
 
-# URL base da nossa API
 BASE_URL = "http://127.0.0.1:8000"
 
 def print_separador(titulo):
     print(f"\n--- [TESTE] {titulo} ---\n")
 
 def testar_cliente():
-    try:
-        # --- TESTANDO CRUD ---
-        
+    try:        
         print_separador("GET /produtos (Lista Inicial)")
         r_lista_inicial = httpx.get(f"{BASE_URL}/produtos")
         print(f"Status: {r_lista_inicial.status_code}")
@@ -48,9 +45,7 @@ def testar_cliente():
         r_get_id_removido = httpx.get(f"{BASE_URL}/produtos/{novo_id}")
         print(f"Status: {r_get_id_removido.status_code}")
         print(r_get_id_removido.json())
-        
-        # --- TESTANDO NOVOS SERVIÇOS DE ESTATÍSTICAS ---
-        
+                
         print_separador("GET /produtos/stats/media-precos")
         r_media = httpx.get(f"{BASE_URL}/produtos/stats/media-precos")
         print(f"Status: {r_media.status_code}")
@@ -70,13 +65,11 @@ def testar_cliente():
         r_acima = httpx.get(f"{BASE_URL}/produtos/stats/acima-media")
         print(f"Status: {r_acima.status_code}")
         print(f"Total de produtos acima da média: {len(r_acima.json())}")
-        # print(r_acima.json()) # Pode ser uma lista muito longa
 
         print_separador("GET /produtos/stats/abaixo-media")
         r_abaixo = httpx.get(f"{BASE_URL}/produtos/stats/abaixo-media")
         print(f"Status: {r_abaixo.status_code}")
         print(f"Total de produtos abaixo da média: {len(r_abaixo.json())}")
-        # print(r_abaixo.json()) # Pode ser uma lista muito longa
 
     except httpx.ConnectError:
         print(f"\n[ERRO] Não foi possível conectar ao servidor em {BASE_URL}")
@@ -86,4 +79,5 @@ def testar_cliente():
         print(f"\n[ERRO INESPERADO] {e}")
 
 if __name__ == "__main__":
+
     testar_cliente()
