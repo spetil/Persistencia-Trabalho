@@ -1,22 +1,17 @@
 # para executar:
 # uvicorn main:app --reload
 
+from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 import asyncio
 import os
 
-# !!! NOVO IMPORT (NÃO ESTAVA NAS AULAS) !!!
-from fastapi.middleware.cors import CORSMiddleware
-
-# --- Configurações Iniciais ---
-
 CSV_FILE = "produtos.csv"
 lock = asyncio.Lock()
 
 def gerar_dados_iniciais():
-    # ... (O resto da função continua igual) ...
     dados = [
         {'id': 1, 'nome': 'Laptop Gamer', 'categoria': 'Eletrônicos', 'preco': 7500.0},
         {'id': 2, 'nome': 'Mouse Sem Fio', 'categoria': 'Acessórios', 'preco': 150.0},
@@ -66,11 +61,9 @@ def carregar_dados():
 def salvar_dados(df: pd.DataFrame):
     df.to_csv(CSV_FILE, index=False)
 
-# --- Carregamento Inicial ---
 db = carregar_dados()
 proximo_id = (db['id'].max() + 1) if not db.empty else 1
 
-# --- Modelos Pydantic ---
 class ProdutoBase(BaseModel):
     nome: str
     categoria: str
@@ -79,16 +72,12 @@ class ProdutoBase(BaseModel):
 class Produto(ProdutoBase):
     id: int
 
-# --- Aplicação FastAPI ---
 app = FastAPI(
     title="API de Produtos (Trabalho 01)",
     description="Continuacao da Atividade 01 com persistencia em CSV e stats"
 )
 
-# --- !!! NOVO BLOCO DE CÓDIGO (NÃO ESTAVA NAS AULAS) !!! ---
-# Configuração do CORS (Cross-Origin Resource Sharing)
-# Isso permite que o seu navegador (rodando o index.html)
-# acesse a sua API (rodando no localhost) sem ser bloqueado.
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permite TODAS as origens (ex: "file://", "http://localhost")
@@ -96,10 +85,6 @@ app.add_middleware(
     allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE)
     allow_headers=["*"],  # Permite todos os cabeçalhos
 )
-# --- FIM DO NOVO BLOCO ---
-
-
-# --- Endpoints CRUD (O resto do arquivo continua igual) ---
 
 @app.post("/produtos", response_model=Produto, status_code=status.HTTP_201_CREATED)
 async def cadastrar_produto(produto: ProdutoBase):
@@ -159,8 +144,6 @@ async def remover_produto(id: int):
         salvar_dados(db)
         return {"message": "Produto removido com sucesso"}
 
-# --- Novos Endpoints de Estatísticas ---
-
 @app.get("/produtos/stats/media-precos")
 def obter_media_precos():
     if db.empty:
@@ -204,4 +187,5 @@ def obter_produtos_abaixo_media():
         return []
     media = db['preco'].mean()
     produtos_abaixo_media = db[db['preco'] < media]
+
     return produtos_abaixo_media.to_dict('records')
