@@ -1,17 +1,18 @@
-# para executar:
 # uvicorn main:app --reload
 
-from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 import asyncio
 import os
+from fastapi.middleware.cors import CORSMiddleware
+
 
 CSV_FILE = "produtos.csv"
 lock = asyncio.Lock()
 
 def gerar_dados_iniciais():
+    """Gera mais de 30 registros iniciais."""
     dados = [
         {'id': 1, 'nome': 'Laptop Gamer', 'categoria': 'Eletrônicos', 'preco': 7500.0},
         {'id': 2, 'nome': 'Mouse Sem Fio', 'categoria': 'Acessórios', 'preco': 150.0},
@@ -47,22 +48,34 @@ def gerar_dados_iniciais():
     ]
     return pd.DataFrame(dados, columns=["id", "nome", "categoria", "preco"])
 
+def salvar_dados(df: pd.DataFrame):
+    """Salva o DataFrame no arquivo CSV"""
+    df_para_salvar = df.copy()
+    df_para_salvar['id'] = df_para_salvar['id'].astype(int)
+    df_para_salvar.to_csv(CSV_FILE, index=False)
+
 def carregar_dados():
+    """Lê o CSV ou cria um novo com 30+ registros E SALVA."""
     if os.path.exists(CSV_FILE):
         try:
             df = pd.read_csv(CSV_FILE)
-            df['id'] = df['id'].astype(int)
+            if df.empty:
+                df = gerar_dados_iniciais()
+                salvar_dados(df)
+            else:
+                df['id'] = df['id'].astype(int)
             return df
         except pd.errors.EmptyDataError:
-            return gerar_dados_iniciais()
+            df = gerar_dados_iniciais()
+            salvar_dados(df)
+            return df
     else:
-        return gerar_dados_iniciais()
-
-def salvar_dados(df: pd.DataFrame):
-    df.to_csv(CSV_FILE, index=False)
+        df = gerar_dados_iniciais()
+        salvar_dados(df)
+        return df
 
 db = carregar_dados()
-proximo_id = (db['id'].max() + 1) if not db.empty else 1
+proximo_id = (int(db['id'].max()) + 1) if not db.empty else 1
 
 class ProdutoBase(BaseModel):
     nome: str
@@ -77,13 +90,12 @@ app = FastAPI(
     description="Continuacao da Atividade 01 com persistencia em CSV e stats"
 )
 
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permite TODAS as origens (ex: "file://", "http://localhost")
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Permite todos os métodos (GET, POST, PUT, DELETE)
-    allow_headers=["*"],  # Permite todos os cabeçalhos
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.post("/produtos", response_model=Produto, status_code=status.HTTP_201_CREATED)
@@ -91,9 +103,11 @@ async def cadastrar_produto(produto: ProdutoBase):
     global proximo_id, db
     async with lock:
         novo_produto = produto.model_dump()
-        novo_produto['id'] = proximo_id
-        db = db._append(novo_produto, ignore_index=True)
-        salvar_dados(db)
+        novo_produto['id'] = proximo_id        
+        novo_produto_df = pd.DataFrame([novo_produto])
+        db = pd.concat([db, novo_produto_df], ignore_index=True)
+        
+        salvar_dados(db)         
         proximo_id += 1
         return novo_produto
 
@@ -103,7 +117,7 @@ def retornar_todos_produtos():
 
 @app.get("/produtos/{id}", response_model=Produto)
 def retornar_produto_por_id(id: int):
-    produto = db[db['id'] == id]
+    produto = db[db['id'].astype(int) == id]
     if produto.empty:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
@@ -115,7 +129,7 @@ def retornar_produto_por_id(id: int):
 async def atualizar_produto(id: int, produto_atualizado: ProdutoBase):
     global db
     async with lock:
-        indice = db.index[db['id'] == id].tolist()
+        indice = db.index[db['id'].astype(int) == id].tolist()
         if not indice:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
@@ -125,7 +139,8 @@ async def atualizar_produto(id: int, produto_atualizado: ProdutoBase):
         db.loc[idx, 'nome'] = produto_atualizado.nome
         db.loc[idx, 'categoria'] = produto_atualizado.categoria
         db.loc[idx, 'preco'] = produto_atualizado.preco
-        salvar_dados(db)
+        
+        salvar_dados(db) 
         produto_atualizado_completo = db.loc[idx].to_dict()
         return produto_atualizado_completo
 
@@ -133,7 +148,7 @@ async def atualizar_produto(id: int, produto_atualizado: ProdutoBase):
 async def remover_produto(id: int):
     global db
     async with lock:
-        indice = db.index[db['id'] == id].tolist()
+        indice = db.index[db['id'].astype(int) == id].tolist()
         if not indice:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
@@ -141,7 +156,8 @@ async def remover_produto(id: int):
             )
         idx = indice[0]
         db = db.drop(idx).reset_index(drop=True)
-        salvar_dados(db)
+        salvar_dados(db) 
+        
         return {"message": "Produto removido com sucesso"}
 
 @app.get("/produtos/stats/media-precos")
@@ -187,5 +203,5 @@ def obter_produtos_abaixo_media():
         return []
     media = db['preco'].mean()
     produtos_abaixo_media = db[db['preco'] < media]
-
+    
     return produtos_abaixo_media.to_dict('records')
