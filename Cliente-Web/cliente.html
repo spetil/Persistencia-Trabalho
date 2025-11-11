@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cliente API Produtos</title>
+    <title>Cliente API Filmes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         pre {
@@ -19,8 +19,8 @@
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Cliente API de Produtos (Trabalho 01)</h1>
-            <p class="text-gray-600">Interface opcional para testar os endpoints de estatísticas.</p>
+            <h1 class="text-3xl font-bold text-gray-800">Cliente HTML do trabalho 1</h1>
+            <p class="text-gray-600">Mateus Lima Rodrigues & Lucas Cavalcante</p>
         </header>
 
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
@@ -28,13 +28,13 @@
                 Listar Todos
             </button>
             <button id="btnMedia" class="bg-green-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200">
-                Média Preços
+                Média Notas
             </button>
             <button id="btnMaior" class="bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition-colors duration-200">
-                Maior Preço
+                Maior Nota
             </button>
             <button id="btnMenor" class="bg-yellow-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition-colors duration-200">
-                Menor Preço
+                Menor Nota
             </button>
             <button id="btnAcima" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-indigo-700 transition-colors duration-200">
                 Acima Média
@@ -76,28 +76,28 @@
             }
         }
 
+        // Endpoints atualizados no JavaScript
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('btnListarTodos').addEventListener('click', () => {
-                fetchDataAndRender('/produtos');
+                fetchDataAndRender('/filmes');
             });
             document.getElementById('btnMedia').addEventListener('click', () => {
-                fetchDataAndRender('/produtos/stats/media-precos');
+                fetchDataAndRender('/filmes/stats/media-notas');
             });
             document.getElementById('btnMaior').addEventListener('click', () => {
-                fetchDataAndRender('/produtos/stats/maior-preco');
+                fetchDataAndRender('/filmes/stats/maior-nota');
             });
             document.getElementById('btnMenor').addEventListener('click', () => {
-                fetchDataAndRender('/produtos/stats/menor-preco');
+                fetchDataAndRender('/filmes/stats/menor-nota');
             });
             document.getElementById('btnAcima').addEventListener('click', () => {
-                fetchDataAndRender('/produtos/stats/acima-media');
+                fetchDataAndRender('/filmes/stats/acima-media');
             });
             document.getElementById('btnAbaixo').addEventListener('click', () => {
-                fetchDataAndRender('/produtos/stats/abaixo-media');
+                fetchDataAndRender('/filmes/stats/abaixo-media');
             });
         });
     </script>
 
 </body>
-
 </html>
