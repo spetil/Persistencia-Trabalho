@@ -1,0 +1,51 @@
+id,nome,categoria,nota_imdb
+1,Evil Dead 2,Terror,7.7
+2,Pânico,Terror,7.4
+3,Creep,Terror,6.3
+4,Todo Mundo em Pânico,Comédia,6.2
+5,O Poderoso Chefão,Drama,9.2
+6,Batman: O Cavaleiro das Trevas,Ação,9.0
+7,A Lista de Schindler,Biografia,8.9
+8,Pulp Fiction: Tempo de Violência,Crime,8.9
+9,O Senhor dos Anéis: O Retorno do Rei,Fantasia,8.9
+10,Forrest Gump: O Contador de Histórias,Comédia,8.8
+11,A Origem,Ficção Científica,8.8
+12,Matrix,Ficção Científica,8.7
+13,Os Sete Samurais,Aventura,8.6
+14,Cidade de Deus,Crime,8.6
+15,O Silêncio dos Inocentes,Suspense,8.6
+16,Star Wars: Episódio V - O Império Contra-Ataca,Ficção Científica,8.7
+17,Interestelar,Ficção Científica,8.6
+18,Parasita,Suspense,8.6
+19,Clube da Luta,Drama,8.8
+20,O Resgate do Soldado Ryan,Guerra,8.6
+21,Gladiador,Ação,8.5
+22,O Grande Truque,Mistério,8.5
+23,A Viagem de Chihiro,Animação,8.6
+24,O Rei Leão,Animação,8.5
+25,De Volta para o Futuro,Aventura,8.5
+26,Whiplash: Em Busca da Perfeição,Drama,8.5
+27,O Iluminado,Terror,8.4
+28,Psicose,Terror,8.5
+29,Laranja Mecânica,Crime,8.3
+30,Janela Indiscreta,Mistério,8.5
+31,Coringa,Drama,8.4
+32,Apocalypse Now,Guerra,8.4
+33,"Alien, o Oitavo Passageiro",Ficção Científica,8.4
+34,Blade Runner: O Caçador de Androides,Ficção Científica,8.1
+35,WALL·E,Animação,8.4
+36,Duro de Matar,Ação,8.2
+37,Mad Max: Estrada da Fúria,Ação,8.1
+38,O Exterminador do Futuro 2: O Julgamento Final,Ação,8.5
+39,Indiana Jones e os Caçadores da Arca Perdida,Aventura,8.4
+40,Brilho Eterno de uma Mente sem Lembranças,Romance,8.3
+41,Se7en: Os Sete Crimes Capitais,Crime,8.6
+42,Os Suspeitos,Mistério,8.5
+43,Amnésia,Mistério,8.4
+44,Réquiem para um Sonho,Drama,8.3
+45,A Outra História Americana,Drama,8.5
+46,Toy Story,Animação,8.3
+47,Up: Altas Aventuras,Animação,8.2
+48,O Labirinto do Fauno,Fantasia,8.2
+49,O Grande Hotel Budapeste,Comédia,8.1
+50,Monty Python e o Cálice Sagrado,Comédia,8.2
