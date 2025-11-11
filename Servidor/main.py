@@ -1,61 +1,77 @@
-# uvicorn main:app --reload
 
 import pandas as pd
 from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 import asyncio
 import os
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware # permitir a comunição com o cliente html 
+# https://fastapi.tiangolo.com/tutorial/cors/#more-info
+# uvicorn main:app --reload
 
-
-CSV_FILE = "produtos.csv"
+CSV_FILE = "filmes.csv"
 lock = asyncio.Lock()
 
 def gerar_dados_iniciais():
-    """Gera mais de 30 registros iniciais."""
     dados = [
-        {'id': 1, 'nome': 'Laptop Gamer', 'categoria': 'Eletrônicos', 'preco': 7500.0},
-        {'id': 2, 'nome': 'Mouse Sem Fio', 'categoria': 'Acessórios', 'preco': 150.0},
-        {'id': 3, 'nome': 'Teclado Mecânico', 'categoria': 'Acessórios', 'preco': 450.0},
-        {'id': 4, 'nome': 'Monitor 4K', 'categoria': 'Monitores', 'preco': 2200.0},
-        {'id': 5, 'nome': 'Cadeira Gamer', 'categoria': 'Móveis', 'preco': 1200.0},
-        {'id': 6, 'nome': 'Headset 7.1', 'categoria': 'Acessórios', 'preco': 600.0},
-        {'id': 7, 'nome': 'Smartphone', 'categoria': 'Eletrônicos', 'preco': 3500.0},
-        {'id': 8, 'nome': 'Smartwatch', 'categoria': 'Eletrônicos', 'preco': 900.0},
-        {'id': 9, 'nome': 'Webcam Full HD', 'categoria': 'Acessórios', 'preco': 300.0},
-        {'id': 10, 'nome': 'Microfone Condensador', 'categoria': 'Acessórios', 'preco': 700.0},
-        {'id': 11, 'nome': 'SSD 1TB', 'categoria': 'Componentes', 'preco': 800.0},
-        {'id': 12, 'nome': 'Placa de Vídeo', 'categoria': 'Componentes', 'preco': 4500.0},
-        {'id': 13, 'nome': 'Memória RAM 16GB', 'categoria': 'Componentes', 'preco': 500.0},
-        {'id': 14, 'nome': 'Gabinete', 'categoria': 'Componentes', 'preco': 400.0},
-        {'id': 15, 'nome': 'Cooler CPU', 'categoria': 'Componentes', 'preco': 250.0},
-        {'id': 16, 'nome': 'Fonte 750W', 'categoria': 'Componentes', 'preco': 650.0},
-        {'id': 17, 'nome': 'Mochila para Laptop', 'categoria': 'Acessórios', 'preco': 200.0},
-        {'id': 18, 'nome': 'Filtro de Linha', 'categoria': 'Acessórios', 'preco': 80.0},
-        {'id': 19, 'nome': 'Mousepad Grande', 'categoria': 'Acessórios', 'preco': 120.0},
-        {'id': 20, 'nome': 'Lâmpada Inteligente', 'categoria': 'Casa', 'preco': 90.0},
-        {'id': 21, 'nome': 'Aspirador Robô', 'categoria': 'Casa', 'preco': 1500.0},
-        {'id': 22, 'nome': 'Cafeteira Elétrica', 'categoria': 'Casa', 'preco': 250.0},
-        {'id': 23, 'nome': 'Liquidificador', 'categoria': 'Casa', 'preco': 180.0},
-        {'id': 24, 'nome': 'Air Fryer', 'categoria': 'Casa', 'preco': 400.0},
-        {'id': 25, 'nome': 'Notebook de Escritório', 'categoria': 'Eletrônicos', 'preco': 3200.0},
-        {'id': 26, 'nome': 'Impressora Multifuncional', 'categoria': 'Eletrônicos', 'preco': 850.0},
-        {'id': 27, 'nome': 'Roteador Mesh', 'categoria': 'Redes', 'preco': 700.0},
-        {'id': 28, 'nome': 'Cabo de Rede 10m', 'categoria': 'Redes', 'preco': 50.0},
-        {'id': 29, 'nome': 'HD Externo 2TB', 'categoria': 'Acessórios', 'preco': 450.0},
-        {'id': 30, 'nome': 'Tablet', 'categoria': 'Eletrônicos', 'preco': 1700.0},
-        {'id': 31, 'nome': 'Kindle', 'categoria': 'Eletrônicos', 'preco': 400.0}
+        {'id': 1, 'nome': 'Evil Dead 2', 'categoria': 'Terror', 'nota_imdb': 7.7},
+        {'id': 2, 'nome': 'Pânico', 'categoria': 'Terror', 'nota_imdb': 7.4},
+        {'id': 3, 'nome': 'Creep', 'categoria': 'Terror', 'nota_imdb': 6.3},
+        {'id': 4, 'nome': 'Todo Mundo em Pânico', 'categoria': 'Comédia', 'nota_imdb': 6.2},
+        {'id': 5, 'nome': 'O Poderoso Chefão', 'categoria': 'Drama', 'nota_imdb': 9.2},
+        {'id': 6, 'nome': 'Batman: O Cavaleiro das Trevas', 'categoria': 'Ação', 'nota_imdb': 9.0},
+        {'id': 7, 'nome': 'A Lista de Schindler', 'categoria': 'Biografia', 'nota_imdb': 8.9},
+        {'id': 8, 'nome': 'Pulp Fiction: Tempo de Violência', 'categoria': 'Crime', 'nota_imdb': 8.9},
+        {'id': 9, 'nome': 'O Senhor dos Anéis: O Retorno do Rei', 'categoria': 'Fantasia', 'nota_imdb': 8.9},
+        {'id': 10, 'nome': 'Forrest Gump: O Contador de Histórias', 'categoria': 'Comédia', 'nota_imdb': 8.8},
+        {'id': 11, 'nome': 'A Origem', 'categoria': 'Ficção Científica', 'nota_imdb': 8.8},
+        {'id': 12, 'nome': 'Matrix', 'categoria': 'Ficção Científica', 'nota_imdb': 8.7},
+        {'id': 13, 'nome': 'Os Sete Samurais', 'categoria': 'Aventura', 'nota_imdb': 8.6},
+        {'id': 14, 'nome': 'Cidade de Deus', 'categoria': 'Crime', 'nota_imdb': 8.6},
+        {'id': 15, 'nome': 'O Silêncio dos Inocentes', 'categoria': 'Suspense', 'nota_imdb': 8.6},
+        {'id': 16, 'nome': 'Star Wars: Episódio V - O Império Contra-Ataca', 'categoria': 'Ficção Científica', 'nota_imdb': 8.7},
+        {'id': 17, 'nome': 'Interestelar', 'categoria': 'Ficção Científica', 'nota_imdb': 8.6},
+        {'id': 18, 'nome': 'Parasita', 'categoria': 'Suspense', 'nota_imdb': 8.6},
+        {'id': 19, 'nome': 'Clube da Luta', 'categoria': 'Drama', 'nota_imdb': 8.8},
+        {'id': 20, 'nome': 'O Resgate do Soldado Ryan', 'categoria': 'Guerra', 'nota_imdb': 8.6},
+        {'id': 21, 'nome': 'Gladiador', 'categoria': 'Ação', 'nota_imdb': 8.5},
+        {'id': 22, 'nome': 'O Grande Truque', 'categoria': 'Mistério', 'nota_imdb': 8.5},
+        {'id': 23, 'nome': 'A Viagem de Chihiro', 'categoria': 'Animação', 'nota_imdb': 8.6},
+        {'id': 24, 'nome': 'O Rei Leão', 'categoria': 'Animação', 'nota_imdb': 8.5},
+        {'id': 25, 'nome': 'De Volta para o Futuro', 'categoria': 'Aventura', 'nota_imdb': 8.5},
+        {'id': 26, 'nome': 'Whiplash: Em Busca da Perfeição', 'categoria': 'Drama', 'nota_imdb': 8.5},
+        {'id': 27, 'nome': 'O Iluminado', 'categoria': 'Terror', 'nota_imdb': 8.4},
+        {'id': 28, 'nome': 'Psicose', 'categoria': 'Terror', 'nota_imdb': 8.5},
+        {'id': 29, 'nome': 'Laranja Mecânica', 'categoria': 'Crime', 'nota_imdb': 8.3},
+        {'id': 30, 'nome': 'Janela Indiscreta', 'categoria': 'Mistério', 'nota_imdb': 8.5},
+        {'id': 31, 'nome': 'Coringa', 'categoria': 'Drama', 'nota_imdb': 8.4},
+        {'id': 32, 'nome': 'Apocalypse Now', 'categoria': 'Guerra', 'nota_imdb': 8.4},
+        {'id': 33, 'nome': 'Alien, o Oitavo Passageiro', 'categoria': 'Ficção Científica', 'nota_imdb': 8.4},
+        {'id': 34, 'nome': 'Blade Runner: O Caçador de Androides', 'categoria': 'Ficção Científica', 'nota_imdb': 8.1},
+        {'id': 35, 'nome': 'WALL·E', 'categoria': 'Animação', 'nota_imdb': 8.4},
+        {'id': 36, 'nome': 'Duro de Matar', 'categoria': 'Ação', 'nota_imdb': 8.2},
+        {'id': 37, 'nome': 'Mad Max: Estrada da Fúria', 'categoria': 'Ação', 'nota_imdb': 8.1},
+        {'id': 38, 'nome': 'O Exterminador do Futuro 2: O Julgamento Final', 'categoria': 'Ação', 'nota_imdb': 8.5},
+        {'id': 39, 'nome': 'Indiana Jones e os Caçadores da Arca Perdida', 'categoria': 'Aventura', 'nota_imdb': 8.4},
+        {'id': 40, 'nome': 'Brilho Eterno de uma Mente sem Lembranças', 'categoria': 'Romance', 'nota_imdb': 8.3},
+        {'id': 41, 'nome': 'Se7en: Os Sete Crimes Capitais', 'categoria': 'Crime', 'nota_imdb': 8.6},
+        {'id': 42, 'nome': 'Os Suspeitos', 'categoria': 'Mistério', 'nota_imdb': 8.5},
+        {'id': 43, 'nome': 'Amnésia', 'categoria': 'Mistério', 'nota_imdb': 8.4},
+        {'id': 44, 'nome': 'Réquiem para um Sonho', 'categoria': 'Drama', 'nota_imdb': 8.3},
+        {'id': 45, 'nome': 'A Outra História Americana', 'categoria': 'Drama', 'nota_imdb': 8.5},
+        {'id': 46, 'nome': 'Toy Story', 'categoria': 'Animação', 'nota_imdb': 8.3},
+        {'id': 47, 'nome': 'Up: Altas Aventuras', 'categoria': 'Animação', 'nota_imdb': 8.2},
+        {'id': 48, 'nome': 'O Labirinto do Fauno', 'categoria': 'Fantasia', 'nota_imdb': 8.2},
+        {'id': 49, 'nome': 'O Grande Hotel Budapeste', 'categoria': 'Comédia', 'nota_imdb': 8.1},
+        {'id': 50, 'nome': 'Monty Python e o Cálice Sagrado', 'categoria': 'Comédia', 'nota_imdb': 8.2},
     ]
-    return pd.DataFrame(dados, columns=["id", "nome", "categoria", "preco"])
+    return pd.DataFrame(dados, columns=["id", "nome", "categoria", "nota_imdb"])
 
 def salvar_dados(df: pd.DataFrame):
-    """Salva o DataFrame no arquivo CSV"""
     df_para_salvar = df.copy()
     df_para_salvar['id'] = df_para_salvar['id'].astype(int)
     df_para_salvar.to_csv(CSV_FILE, index=False)
 
 def carregar_dados():
-    """Lê o CSV ou cria um novo com 30+ registros E SALVA."""
     if os.path.exists(CSV_FILE):
         try:
             df = pd.read_csv(CSV_FILE)
@@ -77,17 +93,17 @@ def carregar_dados():
 db = carregar_dados()
 proximo_id = (int(db['id'].max()) + 1) if not db.empty else 1
 
-class ProdutoBase(BaseModel):
+class FilmeBase(BaseModel):
     nome: str
     categoria: str
-    preco: float
+    nota_imdb: float
 
-class Produto(ProdutoBase):
+class Filme(FilmeBase):
     id: int
 
 app = FastAPI(
-    title="API de Produtos (Trabalho 01)",
-    description="Continuacao da Atividade 01 com persistencia em CSV e stats"
+    title="Trabalho 1/ API de Filmes",
+    description="Lucas Cavalcante & Mateus Lima"
 )
 
 app.add_middleware(
@@ -98,110 +114,110 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/produtos", response_model=Produto, status_code=status.HTTP_201_CREATED)
-async def cadastrar_produto(produto: ProdutoBase):
+@app.post("/filmes", response_model=Filme, status_code=status.HTTP_201_CREATED)
+async def cadastrar_filme(filme: FilmeBase):
     global proximo_id, db
     async with lock:
-        novo_produto = produto.model_dump()
-        novo_produto['id'] = proximo_id        
-        novo_produto_df = pd.DataFrame([novo_produto])
-        db = pd.concat([db, novo_produto_df], ignore_index=True)
+        novo_filme = filme.model_dump()
+        novo_filme['id'] = proximo_id        
+        novo_filme_df = pd.DataFrame([novo_filme])
+        db = pd.concat([db, novo_filme_df], ignore_index=True)
         
         salvar_dados(db)         
         proximo_id += 1
-        return novo_produto
+        return novo_filme
 
-@app.get("/produtos", response_model=list[Produto])
-def retornar_todos_produtos():
+@app.get("/filmes", response_model=list[Filme])
+def retornar_todos_filmes():
     return db.to_dict('records')
 
-@app.get("/produtos/{id}", response_model=Produto)
-def retornar_produto_por_id(id: int):
-    produto = db[db['id'].astype(int) == id]
-    if produto.empty:
+@app.get("/filmes/{id}", response_model=Filme)
+def retornar_filme_por_id(id: int):
+    filme = db[db['id'].astype(int) == id]
+    if filme.empty:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail=f"Produto com id {id} não encontrado"
+            detail=f"Filme com id {id} não encontrado"
         )
-    return produto.to_dict('records')[0]
+    return filme.to_dict('records')[0]
 
-@app.put("/produtos/{id}", response_model=Produto)
-async def atualizar_produto(id: int, produto_atualizado: ProdutoBase):
+@app.put("/filmes/{id}", response_model=Filme)
+async def atualizar_filme(id: int, filme_atualizado: FilmeBase):
     global db
     async with lock:
         indice = db.index[db['id'].astype(int) == id].tolist()
         if not indice:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"Produto com id {id} não encontrado"
+                detail=f"Filme com id {id} não encontrado"
             )
         idx = indice[0]
-        db.loc[idx, 'nome'] = produto_atualizado.nome
-        db.loc[idx, 'categoria'] = produto_atualizado.categoria
-        db.loc[idx, 'preco'] = produto_atualizado.preco
+        db.loc[idx, 'nome'] = filme_atualizado.nome
+        db.loc[idx, 'categoria'] = filme_atualizado.categoria
+        db.loc[idx, 'nota_imdb'] = filme_atualizado.nota_imdb 
         
         salvar_dados(db) 
-        produto_atualizado_completo = db.loc[idx].to_dict()
-        return produto_atualizado_completo
+        filme_atualizado_completo = db.loc[idx].to_dict()
+        return filme_atualizado_completo
 
-@app.delete("/produtos/{id}")
-async def remover_produto(id: int):
+@app.delete("/filmes/{id}")
+async def remover_filme(id: int):
     global db
     async with lock:
         indice = db.index[db['id'].astype(int) == id].tolist()
         if not indice:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, 
-                detail=f"Produto com id {id} não encontrado"
+                detail=f"Filme com id {id} não encontrado"
             )
         idx = indice[0]
         db = db.drop(idx).reset_index(drop=True)
         salvar_dados(db) 
         
-        return {"message": "Produto removido com sucesso"}
+        return {"message": "Filme removido com sucesso"}
 
-@app.get("/produtos/stats/media-precos")
-def obter_media_precos():
+@app.get("/filmes/stats/media-notas")
+def obter_media_notas():
     if db.empty:
-        return {"media": 0}
-    media = db['preco'].mean()
-    return {"media_precos": round(media, 2)}
+        return {"media_notas": 0}
+    media = db['nota_imdb'].mean()
+    return {"media_notas": round(media, 2)}
 
-@app.get("/produtos/stats/maior-preco", response_model=Produto)
-def obter_produto_maior_preco():
-    if db.empty:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Nenhum produto cadastrado"
-        )
-    maior_preco = db['preco'].max()
-    produto = db[db['preco'] == maior_preco]
-    return produto.to_dict('records')[0]
-
-@app.get("/produtos/stats/menor-preco", response_model=Produto)
-def obter_produto_menor_preco():
+@app.get("/filmes/stats/maior-nota", response_model=list[Filme])
+def obter_filme_maior_nota():
     if db.empty:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, 
-            detail="Nenhum produto cadastrado"
+            detail="Nenhum filme cadastrado"
         )
-    menor_preco = db['preco'].min()
-    produto = db[db['preco'] == menor_preco]
-    return produto.to_dict('records')[0]
+    maior_nota = db['nota_imdb'].max()
+    filme = db[db['nota_imdb'] == maior_nota]
+    return filme.to_dict('records')
 
-@app.get("/produtos/stats/acima-media", response_model=list[Produto])
-def obter_produtos_acima_media():
+@app.get("/filmes/stats/menor-nota", response_model=list[Filme])
+def obter_filme_menor_nota():
+    if db.empty:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, 
+            detail="Nenhum filme cadastrado"
+        )
+    menor_nota = db['nota_imdb'].min()
+    filme = db[db['nota_imdb'] == menor_nota]
+    return filme.to_dict('records')
+
+@app.get("/filmes/stats/acima-media", response_model=list[Filme])
+def obter_filmes_acima_media():
     if db.empty:
         return []
-    media = db['preco'].mean()
-    produtos_acima_media = db[db['preco'] >= media]
-    return produtos_acima_media.to_dict('records')
+    media = db['nota_imdb'].mean()
+    filmes_acima_media = db[db['nota_imdb'] >= media]
+    return filmes_acima_media.to_dict('records')
 
-@app.get("/produtos/stats/abaixo-media", response_model=list[Produto])
-def obter_produtos_abaixo_media():
+@app.get("/filmes/stats/abaixo-media", response_model=list[Filme])
+def obter_filmes_abaixo_media():
     if db.empty:
         return []
-    media = db['preco'].mean()
-    produtos_abaixo_media = db[db['preco'] < media]
+    media = db['nota_imdb'].mean()
+    filmes_abaixo_media = db[db['nota_imdb'] < media]
     
-    return produtos_abaixo_media.to_dict('records')
+    return filmes_abaixo_media.to_dict('records')
